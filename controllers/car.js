@@ -1,3 +1,12 @@
+/**
+ * 
+ * File name: car.js
+ * Author's name: Son Roy Almerol
+ * Student ID: 301220547
+ * Project Name: COMP 229 Midterm
+ * 
+ */
+
 // create a reference to the model
 let CarModel = require('../models/car');
 
@@ -45,35 +54,60 @@ module.exports.details = (req, res, next) => {
 
 // Renders the Add form using the add_edit.ejs template
 module.exports.displayAddPage = (req, res, next) => {
-    
-    // ADD YOUR CODE HERE        
-
+         
+    res.render('cars/add_edit', {
+        title: 'Add Car',
+        car: {
+            make: null,
+            model: null,
+            year: null,
+            kilometers: null,
+            doors: null,
+            seats: null,
+            color: null,
+            price: null
+        }
+    })
 }
 
 // Processes the data submitted from the Add form to create a new car
-module.exports.processAddPage = (req, res, next) => {
+module.exports.processAddPage = async (req, res, next) => {
+    const data = { ...req.body }
+    delete data.id
 
-    // ADD YOUR CODE HERE
-
+    await CarModel.create(data)
+    
+    res.redirect('/cars/list')
 }
 
 // Gets a car by id and renders the Edit form using the add_edit.ejs template
-module.exports.displayEditPage = (req, res, next) => {
+module.exports.displayEditPage = async (req, res, next) => {
     
-    // ADD YOUR CODE HERE
+    const id = req.params.id
 
+    const car = await CarModel.findById(id).lean().exec()
+
+    res.render('cars/add_edit', {
+        title: 'Edit Car',
+        car
+    })
 }
 
 // Processes the data submitted from the Edit form to update a car
-module.exports.processEditPage = (req, res, next) => {
+module.exports.processEditPage = async (req, res, next) => {
+    const data = { ...req.body }
+    delete data.id
+
+    await CarModel.findByIdAndUpdate(req.body.id, data).exec()
     
-    // ADD YOUR CODE HERE
-    
+    res.redirect('/cars/list')
 }
 
 // Deletes a car based on its id.
-module.exports.performDelete = (req, res, next) => {
-    
-    // ADD YOUR CODE HERE
+module.exports.performDelete = async (req, res, next) => {
+    const id = req.params.id
 
+    await CarModel.remove({ _id: id }).exec()
+
+    res.redirect('/cars/list')
 }
